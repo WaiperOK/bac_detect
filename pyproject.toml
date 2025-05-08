@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bac_detect"
+version = "1.1.1"
+description = "Detect backdoors in Python, JS and PHP code"
+readme = "README.md"
+requires-python = ">=3.8"
+authors = [
+  { name = "Ruslan" }
+]
+license = { text = "MIT" }
+keywords = ["security", "backdoor", "static-analysis"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent"
+]
+dependencies = [
+  "bandit>=1.7.0",
+  "pylint>=2.13.0",
+  "esprima>=4.0.1",
+  "tqdm>=4.0.0"
+]
+
+[project.scripts]
+bac_detect = "bac_detect.backdoor_detector:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-q --disable-warnings"
+testpaths = ["tests"]
+
+[tool.setuptools.package-data]
+"bac_detect" = ["patterns.json"]

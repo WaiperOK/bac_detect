@@ -1,0 +1,4 @@
+﻿bandit>=1.7.0
+pylint>=2.13.0
+esprima>=4.0.1
+tqdm
