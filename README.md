@@ -7,7 +7,7 @@
 [![Python Versions](https://img.shields.io/pypi/pyversions/bac_detect)](https://pypi.org/project/bac_detect/)
 [![Build Status](https://github.com/WaiperOK/bac_detect/actions/workflows/ci.yml/badge.svg)](https://github.com/WaiperOK/bac_detect/actions)
 
-**A powerful tool for detecting potential backdoors and vulnerabilities in Python, JavaScript, and PHP source code**
+**A powerful tool for detecting potential backdoors and vulnerabilities in Python, JavaScript, PHP, and TypeScript source code**
 
 [🚀 Installation](#-installation) • 
 [🔍 Features](#-features) • 
@@ -36,18 +36,35 @@ bac_detect --use-pylint path/to/your/code
 
 # Show only HIGH severity issues
 bac_detect --min-severity high path/to/your/code
+
+# Export results to JSON file
+bac_detect --output-format json --output-file results.json path/to/your/code
+
+# Use multiple CPU cores for faster scanning
+bac_detect path/to/your/code  # Multi-threading is enabled by default
+
+# Disable dependency checking
+bac_detect --no-check-dependencies path/to/your/code
 ```
 
 ## 🔍 Features
 
-- **Multi-language scanning**: Analysis of `.py`, `.js`, and `.php` files
+- **Multi-language scanning**: Analysis of `.py`, `.js`, `.php`, and `.ts` files
 - **Combined approach**: 
-  - Abstract Syntax Tree (AST) analysis using Bandit for Python and Esprima for JavaScript
+  - Abstract Syntax Tree (AST) analysis using Bandit for Python and Esprima for JavaScript/TypeScript
+  - Deep AST analysis for PHP code
   - Advanced regex-based scanning
   - Detection of suspicious constructs and potential backdoors
+- **Machine Learning**: Initial implementation of anomaly detection for identifying unusual code patterns
 - **Smart classification**: All found issues are categorized by severity levels (**HIGH**, **MEDIUM**, **LOW**)
 - **Customizability**: All detection rules can be configured in the `patterns.json` file
-- **Flexible reporting**: Export results to JSON and SARIF formats (coming soon)
+- **REST API**: For integration with other security tools and CI/CD pipelines
+- **Performance optimizations**:
+  - Multi-threaded scanning for faster processing
+  - Selective file processing with ignore patterns
+- **Obfuscated code detection**: Identifies common obfuscation techniques across different languages
+- **Dependencies security**: Checks `requirements.txt`, `package.json`, and `composer.json` for known malicious packages
+- **Flexible reporting**: Export results to JSON format
 - **CI/CD integration**: Returns non-zero exit status when issues are detected
 
 ## 📊 Usage Examples
@@ -76,6 +93,35 @@ bac_detect --min-severity medium /path/to/project
 
 # Scan using a custom patterns file
 bac_detect --patterns custom_patterns.json /path/to/project
+
+# Use a custom ignore file
+bac_detect --ignore-file .custom_ignore /path/to/project
+
+# Disable multi-threading
+bac_detect --no-multiprocessing /path/to/project
+
+# Set maximum number of threads
+bac_detect --max-workers 4 /path/to/project
+```
+
+### REST API Usage (New in v1.3.0)
+
+```bash
+# Start the API server
+bac_detect-api --port 8080
+
+# From another terminal or application
+curl -X POST http://localhost:8080/scan -F "file=@/path/to/file.py"
+```
+
+### Machine Learning Integration (New in v1.3.0)
+
+```bash
+# Train the anomaly detection model on your codebase
+bac_detect --train-model /path/to/clean/codebase
+
+# Use the trained model for detection
+bac_detect --use-ml /path/to/scan --model-path ./my_model.pkl
 ```
 
 ### Output Example
@@ -129,6 +175,22 @@ You can edit existing or add new patterns:
 }
 ```
 
+### Ignoring Files and Patterns
+
+Create a `.bac_detectignore` file in your project root:
+
+```
+# This is a comment
+# Ignore specific patterns
+pattern:eval_usage
+pattern:base64_decode
+
+# Ignore files/directories (regex format)
+tests/.*
+vendor/.*
+.*\.min\.js$
+```
+
 ### Configuration File
 
 You can also create a `.bac_detectrc` configuration file in your project root:
@@ -136,7 +198,7 @@ You can also create a `.bac_detectrc` configuration file in your project root:
 ```ini
 [DEFAULT]
 exclude = tests/,docs/,vendor/
-include = *.py,*.js,*.php
+include = *.py,*.js,*.php,*.ts
 min-severity = medium
 use-pylint = true
 ```

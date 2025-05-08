@@ -1,1 +1,4 @@
-include backdoor_detector/patterns.json
+include src/bac_detect/patterns.json
+include LICENSE
+include README.md
+include CHANGELOG.md

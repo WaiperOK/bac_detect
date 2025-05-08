@@ -1,16 +1,16 @@
 <?php
-// Тестовый PHP-код с подозрительными конструкциями
+// Test PHP code with suspicious constructs
 
-// Подозрительный system
+// Suspicious system
 system("whoami");
 
-// Подозрительный shell_exec
+// Suspicious shell_exec
 $output = shell_exec("ls -la");
 
-// Подозрительный eval
+// Suspicious eval
 eval('echo "Malicious PHP code";');
 
-// Обфусцированный код
+// Obfuscated code
 $obfuscated = base64_decode("ZWNobyAiSGVsbG8iOw==");
 eval($obfuscated);
 ?>

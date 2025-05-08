@@ -1,0 +1,337 @@
+{
+  "scan_time": [
+    2025,
+    5,
+    8,
+    18,
+    28,
+    36,
+    3,
+    128,
+    1
+  ],
+  "issues_count": 45,
+  "issues_by_severity": {
+    "critical": 0,
+    "high": 18,
+    "medium": 27,
+    "low": 0
+  },
+  "issues": [
+    {
+      "file": "examples\\test_backdoor.py",
+      "line": 18,
+      "type": "regex-python",
+      "message": "Pattern 'exec_001' : exec(",
+      "severity": "high"
+    },
+    {
+      "file": "examples\\test_backdoor.py",
+      "line": 18,
+      "type": "regex-python",
+      "message": "Pattern 'exec_002' : exec(obfuscated)",
+      "severity": "high"
+    },
+    {
+      "file": "examples\\test_backdoor.py",
+      "line": 11,
+      "type": "regex-python",
+      "message": "Pattern 'exec_001' : exec(",
+      "severity": "high"
+    },
+    {
+      "file": "examples\\test_backdoor.py",
+      "line": 11,
+      "type": "regex-python",
+      "message": "Pattern 'exec_002' : exec(\"print('Malicious code executed')",
+      "severity": "high"
+    },
+    {
+      "file": "examples\\test_backdoor.py",
+      "line": 8,
+      "type": "regex-python",
+      "message": "Pattern 'eval_001' : eval(",
+      "severity": "high"
+    },
+    {
+      "file": "examples\\test_backdoor.py",
+      "line": 8,
+      "type": "regex-python",
+      "message": "Pattern 'eval_002' : eval(user_input)",
+      "severity": "high"
+    },
+    {
+      "file": "examples\\test_backdoor.php",
+      "line": 15,
+      "type": "regex-php",
+      "message": "Pattern 'eval_001' : eval(",
+      "severity": "high"
+    },
+    {
+      "line": 14,
+      "type": "obfuscation",
+      "message": "Обнаружен вызов base64_decode, часто используемый для скрытия кода: base64_decode(",
+      "severity": "high",
+      "file": "examples\\test_backdoor.php"
+    },
+    {
+      "file": "examples\\test_backdoor.php",
+      "line": 11,
+      "type": "regex-php",
+      "message": "Pattern 'eval_001' : eval(",
+      "severity": "high"
+    },
+    {
+      "file": "examples\\test_backdoor.js",
+      "line": 8,
+      "type": "regex-javascript",
+      "message": "Pattern 'eval_001' : eval(",
+      "severity": "high"
+    },
+    {
+      "file": "examples\\test_backdoor.js",
+      "line": 4,
+      "type": "regex-javascript",
+      "message": "Pattern 'eval_001' : eval(",
+      "severity": "high"
+    },
+    {
+      "file": "examples\\suspicious.py",
+      "line": 4,
+      "type": "regex-python",
+      "message": "Pattern 'exec_001' : exec(",
+      "severity": "high"
+    },
+    {
+      "file": "examples\\suspicious.py",
+      "line": 4,
+      "type": "regex-python",
+      "message": "Pattern 'exec_002' : exec('print(123)",
+      "severity": "high"
+    },
+    {
+      "file": "examples\\suspicious.py",
+      "line": 4,
+      "type": "regex-python",
+      "message": "Pattern 'exec_003' : exec('print(123)')",
+      "severity": "high"
+    },
+    {
+      "file": "examples\\suspicious.py",
+      "line": 3,
+      "type": "regex-python",
+      "message": "Pattern 'eval_001' : eval(",
+      "severity": "high"
+    },
+    {
+      "file": "examples\\suspicious.py",
+      "line": 3,
+      "type": "regex-python",
+      "message": "Pattern 'eval_002' : eval(input('Enter code: ')",
+      "severity": "high"
+    },
+    {
+      "file": "examples\\suspicious.php",
+      "line": 4,
+      "type": "regex-php",
+      "message": "Pattern 'eval_001' : eval(",
+      "severity": "high"
+    },
+    {
+      "file": "examples\\suspicious.js",
+      "line": 3,
+      "type": "regex-javascript",
+      "message": "Pattern 'eval_001' : eval(",
+      "severity": "high"
+    },
+    {
+      "file": "examples\\test_backdoor.py",
+      "line": 18,
+      "type": "bandit",
+      "message": "Use of exec detected.",
+      "severity": "medium"
+    },
+    {
+      "file": "examples\\test_backdoor.py",
+      "line": 17,
+      "type": "regex-python",
+      "message": "Pattern 'obfuscated_002' : base64.b64decode",
+      "severity": "medium"
+    },
+    {
+      "file": "examples\\test_backdoor.py",
+      "line": 14,
+      "type": "bandit",
+      "message": "Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.",
+      "severity": "medium"
+    },
+    {
+      "file": "examples\\test_backdoor.py",
+      "line": 14,
+      "type": "regex-python",
+      "message": "Pattern 'network_001' : urllib.request",
+      "severity": "medium"
+    },
+    {
+      "file": "examples\\test_backdoor.py",
+      "line": 14,
+      "type": "regex-python",
+      "message": "Pattern 'network_011' : urllib.",
+      "severity": "medium"
+    },
+    {
+      "file": "examples\\test_backdoor.py",
+      "line": 14,
+      "type": "regex-python",
+      "message": "Pattern 'network_031' : urllib.request.urlopen",
+      "severity": "medium"
+    },
+    {
+      "file": "examples\\test_backdoor.py",
+      "line": 11,
+      "type": "bandit",
+      "message": "Use of exec detected.",
+      "severity": "medium"
+    },
+    {
+      "file": "examples\\test_backdoor.py",
+      "line": 8,
+      "type": "bandit",
+      "message": "Use of possibly insecure function - consider using safer ast.literal_eval.",
+      "severity": "medium"
+    },
+    {
+      "file": "examples\\test_backdoor.py",
+      "line": 7,
+      "type": "regex-python",
+      "message": "Pattern 'command_injection_003' : input(",
+      "severity": "medium"
+    },
+    {
+      "file": "examples\\test_backdoor.py",
+      "line": 2,
+      "type": "regex-python",
+      "message": "Pattern 'network_001' : urllib.request",
+      "severity": "medium"
+    },
+    {
+      "file": "examples\\test_backdoor.py",
+      "line": 2,
+      "type": "regex-python",
+      "message": "Pattern 'network_011' : urllib.",
+      "severity": "medium"
+    },
+    {
+      "file": "examples\\test_backdoor.php",
+      "line": 14,
+      "type": "regex-php",
+      "message": "Pattern 'obfuscated_001' : base64_decode(",
+      "severity": "medium"
+    },
+    {
+      "file": "examples\\test_backdoor.php",
+      "line": 8,
+      "type": "regex-php",
+      "message": "Pattern 'process_001' : shell_exec(",
+      "severity": "medium"
+    },
+    {
+      "file": "examples\\test_backdoor.php",
+      "line": 5,
+      "type": "regex-php",
+      "message": "Pattern 'process_001' : system(",
+      "severity": "medium"
+    },
+    {
+      "file": "examples\\test_backdoor.js",
+      "line": 11,
+      "type": "regex-javascript",
+      "message": "Pattern 'network_001' : fetch(",
+      "severity": "medium"
+    },
+    {
+      "file": "examples\\test_backdoor.js",
+      "line": 7,
+      "type": "regex-javascript",
+      "message": "Pattern 'obfuscated_003' : unescape(",
+      "severity": "medium"
+    },
+    {
+      "file": "examples\\suspicious.py",
+      "line": 6,
+      "type": "bandit",
+      "message": "Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.",
+      "severity": "medium"
+    },
+    {
+      "file": "examples\\suspicious.py",
+      "line": 6,
+      "type": "regex-python",
+      "message": "Pattern 'network_001' : urllib.request",
+      "severity": "medium"
+    },
+    {
+      "file": "examples\\suspicious.py",
+      "line": 6,
+      "type": "regex-python",
+      "message": "Pattern 'network_011' : urllib.",
+      "severity": "medium"
+    },
+    {
+      "file": "examples\\suspicious.py",
+      "line": 6,
+      "type": "regex-python",
+      "message": "Pattern 'network_031' : urllib.request.urlopen",
+      "severity": "medium"
+    },
+    {
+      "file": "examples\\suspicious.py",
+      "line": 5,
+      "type": "regex-python",
+      "message": "Pattern 'network_001' : urllib.request",
+      "severity": "medium"
+    },
+    {
+      "file": "examples\\suspicious.py",
+      "line": 5,
+      "type": "regex-python",
+      "message": "Pattern 'network_011' : urllib.",
+      "severity": "medium"
+    },
+    {
+      "file": "examples\\suspicious.py",
+      "line": 4,
+      "type": "bandit",
+      "message": "Use of exec detected.",
+      "severity": "medium"
+    },
+    {
+      "file": "examples\\suspicious.py",
+      "line": 3,
+      "type": "bandit",
+      "message": "Use of possibly insecure function - consider using safer ast.literal_eval.",
+      "severity": "medium"
+    },
+    {
+      "file": "examples\\suspicious.py",
+      "line": 3,
+      "type": "regex-python",
+      "message": "Pattern 'command_injection_003' : input(",
+      "severity": "medium"
+    },
+    {
+      "file": "examples\\suspicious.php",
+      "line": 3,
+      "type": "regex-php",
+      "message": "Pattern 'process_001' : system(",
+      "severity": "medium"
+    },
+    {
+      "file": "examples\\suspicious.js",
+      "line": 4,
+      "type": "regex-javascript",
+      "message": "Pattern 'obfuscated_003' : unescape(",
+      "severity": "medium"
+    }
+  ]
+}

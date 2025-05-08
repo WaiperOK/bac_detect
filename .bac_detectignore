@@ -1,0 +1,9 @@
+
+pattern:eval_usage
+pattern:pickle_usage
+
+tests/.*
+.*test\.py$
+.*\.min\.js$
+node_modules/.*
+vendor/.* 
