@@ -794,7 +794,7 @@ class BackdoorDetector:
             }
         }
 
-    def scan(self, path_to_scan: str, use_pylint: bool = False, use_multiprocessing: bool = True, max_workers: int = None, check_dependencies: bool = True, use_ml: bool = False) -> List[Dict]:
+    def scan(self, path_to_scan: str, use_pylint: bool = False, use_multiprocessing: bool = True, max_workers: int = None, check_dependencies: bool = True, use_ml: bool = False, ml_model_path: str = None, save_ml_model: bool = False, isolation_forest: bool = False) -> List[Dict]:
         """
         Scans the specified path for potential backdoors.
         
@@ -805,6 +805,9 @@ class BackdoorDetector:
             max_workers: Maximum number of worker threads
             check_dependencies: Check dependency files
             use_ml: Use machine learning for anomaly detection
+            ml_model_path: Path to load/save ML model
+            save_ml_model: Whether to save the ML model after training
+            isolation_forest: Use Isolation Forest for anomaly detection instead of statistical model
             
         Returns:
             List of detected issues
@@ -840,35 +843,61 @@ class BackdoorDetector:
         if use_ml:
             try:
                 # Import here to avoid hard dependency
-                from .ml_detector import AnomalyDetector
-                ml_detector = AnomalyDetector()
-                
-                # Train on normal files in same directory or project
-                training_files = []
-                if Path(path_to_scan).is_dir():
-                    # Assume other files in same directory are normal
-                    train_dir = path_to_scan
+                if isolation_forest:
+                    from .ml_detector import IsolationForestDetector
+                    ml_detector = IsolationForestDetector()
+                    logger.info("Using Isolation Forest for anomaly detection")
                 else:
-                    # If scanning a file, train on files in its directory
-                    train_dir = str(Path(path_to_scan).parent)
-                    
-                # Find training files
-                for root, _, files in os.walk(train_dir):
-                    for file in files:
-                        file_path = os.path.join(root, file)
-                        if any(file.endswith(ext) for ext in SUPPORTED_EXTENSIONS) and file_path not in files_to_process:
-                            training_files.append(file_path)
+                    from .ml_detector import AnomalyDetector
+                    ml_detector = AnomalyDetector()
+                    logger.info("Using statistical model for anomaly detection")
                 
-                # Train the model if enough files available
-                if len(training_files) >= 3:
-                    logger.info(f"Training ML model on {len(training_files)} normal files...")
-                    ml_detector.train(training_files)
-                else:
-                    logger.warning("Not enough training files for ML model. Need at least 3 normal files.")
-                    ml_detector = None
+                # Try to load existing model if provided
+                if ml_model_path and os.path.exists(ml_model_path):
+                    logger.info(f"Loading ML model from {ml_model_path}")
+                    if ml_detector.load_model(ml_model_path):
+                        logger.info("ML model loaded successfully")
+                    else:
+                        logger.warning("Failed to load ML model, will train a new one")
+                        ml_model_path = None
+                
+                # If model wasn't loaded, train a new one
+                if not ml_model_path:
+                    # Train on normal files in same directory or project
+                    training_files = []
+                    if Path(path_to_scan).is_dir():
+                        # Assume other files in same directory are normal
+                        train_dir = path_to_scan
+                    else:
+                        # If scanning a file, train on files in its directory
+                        train_dir = str(Path(path_to_scan).parent)
+                        
+                    # Find training files
+                    for root, _, files in os.walk(train_dir):
+                        for file in files:
+                            file_path = os.path.join(root, file)
+                            if any(file.endswith(ext) for ext in SUPPORTED_EXTENSIONS) and file_path not in files_to_process:
+                                training_files.append(file_path)
                     
-            except ImportError:
-                logger.warning("ML detector module not available, ML detection disabled")
+                    # Train the model if enough files available
+                    if len(training_files) >= 3:
+                        logger.info(f"Training ML model on {len(training_files)} normal files...")
+                        ml_detector.train(training_files)
+                        
+                        # Save model if requested
+                        if save_ml_model:
+                            model_name = "isolation_forest_model" if isolation_forest else "statistical_model"
+                            saved_path = ml_detector.save_model(model_name)
+                            logger.info(f"ML model saved to {saved_path}")
+                    else:
+                        logger.warning("Not enough training files for ML model. Need at least 3 normal files.")
+                        ml_detector = None
+                    
+            except ImportError as e:
+                logger.warning(f"ML detector module not available: {e}, ML detection disabled")
+                ml_detector = None
+            except Exception as e:
+                logger.error(f"Error initializing ML detector: {e}")
                 ml_detector = None
         
         try:
@@ -917,9 +946,11 @@ class BackdoorDetector:
         # Add ML-based anomaly detection results if enabled
         if ml_detector is not None:
             logger.info("Running ML-based anomaly detection...")
-            for file_path in files_to_process:
+            for file_path in tqdm(files_to_process, desc="ML Analysis", unit="file"):
                 try:
                     ml_issues = ml_detector.detect_anomalies(file_path)
+                    if ml_issues:
+                        logger.info(f"Found {len(ml_issues)} ML anomalies in {Path(file_path).name}")
                     for issue in ml_issues:
                         # Add file path if missing
                         if 'file' not in issue:
@@ -931,6 +962,7 @@ class BackdoorDetector:
                 except Exception as e:
                     logger.error(f"Error in ML analysis for {file_path}: {e}")
 
+        # Remove duplicates while preserving order
         seen = set()
         final_issues = []
         for issue in all_issues:
@@ -941,7 +973,7 @@ class BackdoorDetector:
                 final_issues.append(issue)
 
         return final_issues
-        
+
     def export_to_json(self, issues: List[Dict], output_file: str) -> bool:
         """
         Exports scan results to a JSON file.
@@ -1015,6 +1047,18 @@ def main():
     parser.add_argument('--use-ml', action='store_true',
                       help="Use machine learning for anomaly detection")
     
+    # Добавляем аргументы для настройки ML-анализа версии 1.4.0
+    parser.add_argument('--ml-model-path', type=str, 
+                      help="Path to load ML model from or save to")
+    parser.add_argument('--save-ml-model', action='store_true',
+                      help="Save trained ML model for future use")
+    parser.add_argument('--isolation-forest', action='store_true',
+                      help="Use Isolation Forest algorithm for anomaly detection")
+    parser.add_argument('--cache-dir', type=str,
+                      help="Directory to cache scan results for faster rescans")
+    parser.add_argument('--incremental', action='store_true',
+                      help="Only scan files that have changed since last scan (requires --cache-dir)")
+    
     args = parser.parse_args()
 
     try:
@@ -1031,51 +1075,75 @@ def main():
             use_multiprocessing=not args.no_multiprocessing,
             max_workers=args.max_workers,
             check_dependencies=not args.no_check_dependencies,
-            use_ml=args.use_ml
+            use_ml=args.use_ml,
+            ml_model_path=args.ml_model_path,
+            save_ml_model=args.save_ml_model,
+            isolation_forest=args.isolation_forest
         )
-
-        min_sev_level = SEVERITY_ORDER.get(args.min_severity.lower(), 1)
-        filtered_issues = [
-            iss for iss in issues
-            if SEVERITY_ORDER.get(str(iss['severity']).lower(), 0) >= min_sev_level
-        ]
         
-        filtered_issues.sort(
-            key=lambda x: (
-                SEVERITY_ORDER.get(str(x['severity']).lower(), 0),
-                x['file'],
-                x['line']
-            ),
-            reverse=True
-        )
-
-        if not filtered_issues:
-            logger.info(f"No issues found (or above severity: {args.min_severity}).")
+        # Фильтруем по серьезности
+        min_severity_level = SEVERITY_ORDER.get(args.min_severity, 1)
+        filtered_issues = [issue for issue in issues if SEVERITY_ORDER.get(issue.get('severity', 'low'), 1) >= min_severity_level]
+        
+        # Формируем и выводим отчет
+        if args.output_format == 'json' or args.output_file and args.output_file.endswith('.json'):
+            output_file = args.output_file or 'results.json'
+            detector.export_to_json(filtered_issues, output_file)
         else:
-            if args.output_format == 'json':
-                output_file = args.output_file or f"bac_detect_results_{Path(args.path).name}.json"
-                detector.export_to_json(filtered_issues, output_file)
+            # Сортируем по серьезности и файлу
+            sorted_issues = sorted(
+                filtered_issues, 
+                key=lambda i: (
+                    -SEVERITY_ORDER.get(i.get('severity', 'low'), 1),
+                    i.get('file', ''),
+                    i.get('line', 0)
+                )
+            )
+            
+            if not sorted_issues:
+                print(f"\n{Colors.format('No issues found', 'info')}")
             else:
-                logger.info(f"Scan Results ({len(filtered_issues)} issues):")
-                for issue in filtered_issues:
-                    sev = str(issue['severity'])
-                    colored_sev = Colors.format(f"[{sev.upper()}]", sev)
-
-                    file_disp = issue['file']
-                    if len(file_disp) > MAX_DISPLAY_LENGTH:
-                        file_disp = "..." + file_disp[-(MAX_DISPLAY_LENGTH - 3):]
-
-                    type_str_raw = f"({issue['type']})"
-                    colored_type = Colors.format(type_str_raw, 'dim')
-                    file_line_str = f"{Colors.format(file_disp, 'bold')}:{Colors.format(str(issue['line']), 'bold')}"
-
-                    print(f"{colored_sev} {file_line_str} {colored_type}: {issue['message']}")
-
+                print(f"\n{Colors.format(f'Found {len(sorted_issues)} issues', 'bold')}:")
+                current_file = None
+                for issue in sorted_issues:
+                    if issue.get('file') != current_file:
+                        current_file = issue.get('file')
+                        display_file = current_file
+                        if len(display_file) > MAX_DISPLAY_LENGTH:
+                            display_file = "..." + display_file[-(MAX_DISPLAY_LENGTH - 3):]
+                        print(f"\n{Colors.format(display_file, 'bold')}:")
+                    
+                    severity = issue.get('severity', 'low')
+                    line_info = f"line {issue.get('line', '?')}" if issue.get('line') else ""
+                    print(f"  {Colors.format(severity.upper(), severity)} {line_info}: {issue.get('message', '')}")
+            
+            if args.output_file:
+                with open(args.output_file, 'w', encoding='utf-8') as f:
+                    f.write(f"Backdoor Detection Results for {args.path}\n")
+                    f.write(f"Total issues found: {len(filtered_issues)}\n\n")
+                    
+                    if not filtered_issues:
+                        f.write("No issues found\n")
+                    else:
+                        current_file = None
+                        for issue in sorted_issues:
+                            if issue.get('file') != current_file:
+                                current_file = issue.get('file')
+                                f.write(f"\n{current_file}:\n")
+                            
+                            severity = issue.get('severity', 'low')
+                            line_info = f"line {issue.get('line', '?')}" if issue.get('line') else ""
+                            # Strip ANSI color codes for file output
+                            message = re.sub(r'\033\[[0-9;]*m', '', issue.get('message', ''))
+                            f.write(f"  {severity.upper()} {line_info}: {message}\n")
+                
+                logger.info(f"Results saved to {args.output_file}")
+        
     except KeyboardInterrupt:
-        logger.warning("Scan interrupted by user.")
+        print("\nScan interrupted by user")
         sys.exit(1)
     except Exception as e:
-        logger.critical(f"An unexpected critical error occurred: {str(e)}")
+        logger.error(f"Error during scan: {e}")
         traceback.print_exc()
         sys.exit(2)
 

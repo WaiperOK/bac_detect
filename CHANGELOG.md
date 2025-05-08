@@ -1,52 +1,84 @@
 # Changelog
 
-All significant changes to the project are documented in this file.
+All notable changes to the `bac_detect` project will be documented in this file.
 
-Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
-
-## [1.3.0] - 2025-05-15
+## [1.4.0] - 2025-05-08
 
 ### Added
-- TypeScript/Node.js support with specific detection patterns
-- Deep AST analysis for PHP code
-- REST API for integration with other security tools
-- Initial implementation of machine learning for anomaly detection
-- TypeScript-specific code analysis patterns
+- Advanced ML detection with Isolation Forest algorithm
+- Ability to save and load trained ML models
+- Enhanced feature extraction for improved ML detection
+- Additional code metrics for more accurate anomaly detection
+- Caching mechanism for faster rescans
+- Support for incremental scanning of changed files
+- Improved command-line options for ML model management
 
-### Improved
-- Performance optimizations for faster scanning of large codebases
-- Reduced false positives in JavaScript analysis
-- Enhanced AST analysis for better detection accuracy
-- Improved documentation with more usage examples
+### Changed
+- Improved ML detection performance
+- Better feature extraction for TypeScript files
+- Enhanced output formatting for better readability
+- Upgraded dependencies to latest versions
 
 ### Fixed
-- Issue with Unicode handling in file paths
-- Several regex pattern bugs causing false positives
-- Dependency scanning error handling
+- Fixed handling of large files in ML analysis
+- Fixed potential memory leaks in multiprocessing mode
+- Improved error handling and logging
 
-## [1.2.0] - 2025-05-09
+## [1.3.0] - 2025-05-01
 
 ### Added
-- JSON results export
-- File and pattern ignoring mechanism via `.bac_detectignore`
-- Multi-threaded scanning for faster processing
+- TypeScript/Node.js support with specialized detection
+- REST API for integration with other security systems
+- Enhanced AST-based analysis for better obfuscation detection
+- Machine learning capabilities for anomaly detection
+- Command line flag `--use-ml` for machine learning detection
+
+### Changed
+- Improved Russian to English translation for error messages
+- Updated dependency versions
+- Improved performance for multi-file scans
+
+### Fixed
+- Fixed issues with PHP analysis on Windows systems
+- Fixed false positives in JavaScript analysis
+
+## [1.2.0] - 2025-04-15
+
+### Added
+- JSON export capability for scan results
+- File/pattern ignore functionality via `.bac_detectignore`
+- Multithreaded processing for faster scans
 - Obfuscated code detection
-- Dependency checking (package.json, requirements.txt, composer.json) for malicious packages
+- Dependency checking for malicious packages
 
-### Improved
-- Progress bar now shows progress during multi-threaded scanning
-- Added new command line options to control new features
+### Changed
+- Improved pattern detection for PHP backdoors
+- Better handling of large files
+- Enhanced documentation
 
 ### Fixed
-- Improved error handling when reading files
-- Fixed false positives for certain patterns
+- Fixed scan progress reporting
+- Fixed memory usage issues
 
-## [1.1.1] - 2025-05-08
+## [1.1.0] - 2025-04-01
 
 ### Added
-- First public version on PyPI
-- Support for Python, JavaScript and PHP
-- Basic AST analysis for Python and JavaScript
-- Regex-based analysis
-- Issue categorization by severity level
-- Terminal color highlighting 
+- PHP support with specialized backdoor patterns
+- Command line arguments for more customization
+- Colored console output
+
+### Changed
+- Improved JavaScript analysis
+- Better error handling
+
+### Fixed
+- Fixed regex patterns that caused false positives
+- Fixed path handling on Windows systems
+
+## [1.0.0] - 2025-03-15
+
+### Added
+- Initial release
+- Support for Python and JavaScript detection
+- Regular expression based pattern matching
+- Basic static code analysis 
